@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State & Local Tax Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom styles for radio buttons if needed */
+        .custom-radio:checked + label {
+            background-color: #4F46E5; /* indigo-600 */
+            color: white;
+            border-color: #4F46E5; /* indigo-600 */
+        }
+        .custom-radio:hover + label {
+            background-color: #E0E7FF; /* indigo-100 */
+        }
+        .feedback-correct {
+            color: #16A34A; /* green-600 */
+            font-weight: bold;
+        }
+        .feedback-incorrect {
+            color: #DC2626; /* red-600 */
+            font-weight: bold;
+        }
+        .explanation {
+            color: #4B5563; /* gray-600 */
+        }
+        /* Ensure map image is responsive and doesn't overflow */
+        .question-image {
+            max-width: 100%;
+            height: auto;
+            max-height: 300px; /* Adjust as needed */
+            object-fit: contain;
+            margin: 1rem auto;
+            border-radius: 0.5rem;
+        }
+        .results-image {
+            max-width: 100%;
+            height: auto;
+            max-height: 250px; /* Adjust as needed for results screen */
+            object-fit: contain;
+            margin: 1.5rem auto; /* Added more margin */
+            border-radius: 0.75rem; /* Slightly more rounded */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-2xl">
+
+        <div id="start-screen">
+            <h1 class="text-3xl font-bold text-center text-indigo-700 mb-6">Welcome to the SALT Quiz!</h1>
+            <p class="text-slate-600 text-center mb-8">Test your basic knowledge of State and Local Taxes.</p>
+            <div class="space-y-4">
+                <div>
+                    <label for="playerName" class="block text-sm font-medium text-slate-700 mb-1">Your Name:</label>
+                    <input type="text" id="playerName" name="playerName" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="playerDivision" class="block text-sm font-medium text-slate-700 mb-1">Your Tax Division (e.g., BTS, SALT):</label>
+                    <input type="text" id="playerDivision" name="playerDivision" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <button id="startGameBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+                    Start Quiz
+                </button>
+            </div>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="question-number" class="text-xl font-semibold text-indigo-700"></h2>
+                <div id="score-display" class="text-lg font-medium text-slate-600">Score: 0/5</div>
+            </div>
+            
+            <div id="question-image-container" class="mb-4 text-center">
+                </div>
+
+            <p id="question-text" class="text-lg text-slate-800 mb-6 min-h-[60px]"></p>
+            
+            <div id="answer-options" class="space-y-3 mb-6">
+                </div>
+
+            <input type="text" id="text-answer-input" class="hidden mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 mb-4">
+            
+            <button id="submitAnswerBtn" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+                Submit Answer
+            </button>
+
+            <div id="feedback-area" class="mt-6 p-4 rounded-md bg-slate-50 hidden">
+                <p id="feedback-text" class="text-sm"></p>
+                <p id="explanation-text" class="text-sm explanation mt-2"></p>
+            </div>
+
+            <button id="nextQuestionBtn" class="hidden w-full mt-4 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+                Next Question
+            </button>
+        </div>
+
+        <div id="results-screen" class="hidden text-center">
+            <h1 class="text-3xl font-bold text-indigo-700 mb-4">Quiz Completed!</h1>
+            <p id="playerNameResult" class="text-xl text-slate-700 mb-2"></p>
+            <p id="finalScore" class="text-2xl font-semibold text-slate-800 mb-2"></p> <div id="results-image-container" class="my-6">
+                 <img id="grumpyDogImage" src="https://placehold.co/400x300/E2E8F0/4A5568?text=Grumpy+Bulldog" alt="Grumpy Bulldog" class="results-image">
+            </div>
+
+            <p class="text-slate-600 mb-8">Great job on completing the quiz! We hope this was a fun refresher.</p>
+            <button id="restartQuizBtn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out">
+                Play Again
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+
+        const playerNameInput = document.getElementById('playerName');
+        const playerDivisionInput = document.getElementById('playerDivision');
+        const startGameBtn = document.getElementById('startGameBtn');
+
+        const questionNumberDisplay = document.getElementById('question-number');
+        const scoreDisplay = document.getElementById('score-display');
+        const questionImageContainer = document.getElementById('question-image-container');
+        const questionTextDisplay = document.getElementById('question-text');
+        const answerOptionsDisplay = document.getElementById('answer-options');
+        const textAnswerInput = document.getElementById('text-answer-input');
+        const submitAnswerBtn = document.getElementById('submitAnswerBtn');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackTextDisplay = document.getElementById('feedback-text');
+        const explanationTextDisplay = document.getElementById('explanation-text');
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        
+        const playerNameResultDisplay = document.getElementById('playerNameResult');
+        const finalScoreDisplay = document.getElementById('finalScore');
+        const restartQuizBtn = document.getElementById('restartQuizBtn');
+        const grumpyDogImage = document.getElementById('grumpyDogImage'); // Get the image element
+
+        // Quiz Data
+        const questions = [
+            {
+                text: "How many states are there in the United States of America?",
+                type: "number",
+                answer: 50,
+                explanation: "Correct! The United States is composed of 50 states. While the District of Columbia is a key federal district, it is not a state.",
+                image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Map_of_USA_with_state_names.svg/1024px-Map_of_USA_with_state_names.svg.png" 
+            },
+            {
+                text: "A company in State Z has a taxable income of $500,000. The state's corporate income tax rate is 6.5%. What is the company's state income tax liability for State Z? (Enter numbers only, e.g., 32500)",
+                type: "calculation",
+                answer: 32500, // 500000 * 0.065
+                explanation: "Correct! Tax liability is Taxable Income × Tax Rate. So, $500,000 × 0.065 = $32,500."
+            },
+            {
+                text: "In the field of state and local taxation, what does the acronym 'SALT' primarily stand for?",
+                type: "multiple-choice",
+                options: ["Sales and Labor Tax", "State and Local Tax", "Sodium and Lithium Tax", "Strategic Asset Liquidation Tax"],
+                answer: "State and Local Tax",
+                explanation: "Correct! 'SALT' stands for State and Local Tax. It's a very common term in the industry encompassing various taxes imposed by state and local governments."
+            },
+            {
+                text: "What does 'Form 1120' generally refer to in the U.S. federal tax system?",
+                type: "multiple-choice",
+                options: ["A tax planning software suite", "The U.S. Corporate Income Tax Return", "A tax treaty with 120 countries", "An IRS office building number"],
+                answer: "The U.S. Corporate Income Tax Return",
+                explanation: "Correct! Form 1120 is the standard U.S. Corporate Income Tax Return filed by C corporations to report their income, gains, losses, deductions, and credits."
+            },
+            {
+                text: "Which of the following is NOT typically a standard factor used in formulary apportionment for state corporate income tax purposes?",
+                type: "multiple-choice",
+                options: ["Sales", "Payroll", "Property", "Production"], 
+                answer: "Production", 
+                explanation: "Correct! The three standard factors historically used in formulary apportionment to divide a company's taxable income among states are Sales, Payroll, and Property. While production activities can influence these factors (e.g., property value of a factory, payroll for production workers), 'Production' itself is not typically a direct, standalone apportionment factor in most states' traditional formulas. Some states have moved to single sales factor or other variations."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let playerName = "";
+        let playerDivision = "";
+
+        // Event Listeners
+        startGameBtn.addEventListener('click', () => {
+            playerName = playerNameInput.value.trim();
+            playerDivision = playerDivisionInput.value.trim();
+
+            if (!playerName || !playerDivision) {
+                showCustomMessage("Please enter your name and division to start the quiz.");
+                return;
+            }
+
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            loadQuestion();
+        });
+
+        submitAnswerBtn.addEventListener('click', handleSubmitAnswer);
+        nextQuestionBtn.addEventListener('click', handleNextQuestion);
+        restartQuizBtn.addEventListener('click', restartQuiz);
+        
+        // Functions
+        function loadQuestion() {
+            feedbackArea.classList.add('hidden');
+            feedbackTextDisplay.textContent = '';
+            explanationTextDisplay.textContent = '';
+            submitAnswerBtn.classList.remove('hidden');
+            nextQuestionBtn.classList.add('hidden');
+            textAnswerInput.classList.add('hidden');
+            textAnswerInput.value = '';
+            answerOptionsDisplay.innerHTML = ''; 
+            questionImageContainer.innerHTML = ''; 
+
+            const currentQuestion = questions[currentQuestionIndex];
+            questionNumberDisplay.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            questionTextDisplay.textContent = currentQuestion.text;
+            scoreDisplay.textContent = `Score: ${score}/${questions.length}`;
+
+            if (currentQuestion.image) {
+                const imgElement = document.createElement('img');
+                imgElement.src = currentQuestion.image;
+                imgElement.alt = "Question related image";
+                imgElement.classList.add('question-image', 'rounded-lg', 'shadow-sm');
+                imgElement.onerror = function() {
+                    this.onerror=null; 
+                    this.src='https://placehold.co/600x350/E2E8F0/4A5568?text=Image+Not+Available';
+                    this.alt='Image not available';
+                };
+                questionImageContainer.appendChild(imgElement);
+            }
+
+            if (currentQuestion.type === "multiple-choice") {
+                currentQuestion.options.forEach(option => {
+                    const optionId = `option-${option.replace(/\s+/g, '-')}`; 
+                    const wrapper = document.createElement('div');
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = 'answer';
+                    input.value = option;
+                    input.id = optionId;
+                    input.classList.add('custom-radio', 'hidden'); 
+
+                    const label = document.createElement('label');
+                    label.htmlFor = optionId;
+                    label.textContent = option;
+                    label.classList.add('block', 'w-full', 'p-3', 'border', 'border-slate-300', 'rounded-lg', 'cursor-pointer', 'hover:bg-indigo-50', 'transition-colors', 'duration-150', 'text-slate-700');
+                    
+                    wrapper.appendChild(input);
+                    wrapper.appendChild(label);
+                    answerOptionsDisplay.appendChild(wrapper);
+
+                    label.addEventListener('click', () => {
+                        document.querySelectorAll('#answer-options label').forEach(lbl => {
+                            lbl.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+                            lbl.classList.add('border-slate-300', 'text-slate-700', 'hover:bg-indigo-50');
+                        });
+                        label.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
+                        label.classList.remove('hover:bg-indigo-50');
+                        input.checked = true; 
+                    });
+                });
+            } else if (currentQuestion.type === "number" || currentQuestion.type === "calculation") {
+                textAnswerInput.classList.remove('hidden');
+                textAnswerInput.type = 'number'; 
+                if (currentQuestion.type === "calculation") {
+                    textAnswerInput.placeholder = "Enter your calculated amount";
+                } else {
+                    textAnswerInput.placeholder = "Enter a number";
+                }
+            }
+        }
+
+        function handleSubmitAnswer() {
+            const currentQuestion = questions[currentQuestionIndex];
+            let playerAnswer;
+            let isCorrect = false;
+
+            if (currentQuestion.type === "multiple-choice") {
+                const selectedOption = document.querySelector('input[name="answer"]:checked');
+                if (selectedOption) {
+                    playerAnswer = selectedOption.value;
+                    if (playerAnswer === currentQuestion.answer) {
+                        isCorrect = true;
+                    }
+                } else {
+                    showCustomMessage("Please select an answer.");
+                    return; 
+                }
+            } else if (currentQuestion.type === "number" || currentQuestion.type === "calculation") {
+                playerAnswer = parseFloat(textAnswerInput.value); 
+                if (isNaN(playerAnswer)) {
+                     showCustomMessage("Please enter a valid number.");
+                    return;
+                }
+                if (playerAnswer === currentQuestion.answer) {
+                    isCorrect = true;
+                }
+            }
+
+            feedbackArea.classList.remove('hidden');
+            explanationTextDisplay.textContent = currentQuestion.explanation;
+
+            if (isCorrect) {
+                score++;
+                feedbackTextDisplay.textContent = "Correct!";
+                feedbackTextDisplay.className = 'feedback-correct text-lg';
+            } else {
+                feedbackTextDisplay.textContent = "Incorrect.";
+                feedbackTextDisplay.className = 'feedback-incorrect text-lg';
+            }
+            
+            scoreDisplay.textContent = `Score: ${score}/${questions.length}`;
+            submitAnswerBtn.classList.add('hidden');
+            nextQuestionBtn.classList.remove('hidden');
+
+            if (currentQuestion.type === "multiple-choice") {
+                document.querySelectorAll('#answer-options input[type="radio"]').forEach(radio => radio.disabled = true);
+                document.querySelectorAll('#answer-options label').forEach(label => label.classList.add('cursor-not-allowed', 'opacity-75'));
+            } else if (currentQuestion.type === "number" || currentQuestion.type === "calculation") {
+                textAnswerInput.disabled = true;
+            }
+
+            if (currentQuestionIndex === questions.length - 1) {
+                nextQuestionBtn.textContent = "Show Results";
+            }
+        }
+        
+        function showCustomMessage(message) {
+            feedbackArea.classList.remove('hidden');
+            feedbackTextDisplay.textContent = message;
+            feedbackTextDisplay.className = 'text-amber-600 font-semibold text-lg'; 
+            explanationTextDisplay.textContent = ''; 
+            
+            setTimeout(() => {
+                if (feedbackTextDisplay.textContent === message) { 
+                    feedbackArea.classList.add('hidden');
+                    feedbackTextDisplay.textContent = '';
+                }
+            }, 3000);
+        }
+
+        function handleNextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                if (questions[currentQuestionIndex-1].type === "multiple-choice") { 
+                     document.querySelectorAll('#answer-options input[type="radio"]').forEach(radio => radio.disabled = false);
+                     document.querySelectorAll('#answer-options label').forEach(label => {
+                        label.classList.remove('cursor-not-allowed', 'opacity-75');
+                        label.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+                        label.classList.add('border-slate-300', 'text-slate-700', 'hover:bg-indigo-50');
+                     });
+                } else if (questions[currentQuestionIndex-1].type === "number" || questions[currentQuestionIndex-1].type === "calculation") {
+                    textAnswerInput.disabled = false;
+                }
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+
+            playerNameResultDisplay.textContent = `${playerName} (Division: ${playerDivision})`;
+            finalScoreDisplay.textContent = `Your Final Score: ${score} out of ${questions.length}`;
+            
+            grumpyDogImage.onerror = function() {
+                this.onerror=null; 
+                this.src='https://placehold.co/400x300/CCCCCC/777777?text=Doggo+Is+Extra+Grumpy+(Image+Error)';
+                this.alt='Grumpy bulldog image failed to load';
+            };
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            playerName = ""; 
+            playerDivision = ""; 
+            playerNameInput.value = ""; 
+            playerDivisionInput.value = ""; 
+
+            resultsScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden'); 
+            
+            scoreDisplay.textContent = `Score: 0/${questions.length}`;
+            nextQuestionBtn.textContent = "Next Question";
+
+             if (textAnswerInput.disabled) {
+                textAnswerInput.disabled = false;
+            }
+            document.querySelectorAll('#answer-options input[type="radio"]').forEach(radio => radio.disabled = false);
+            document.querySelectorAll('#answer-options label').forEach(label => {
+                label.classList.remove('cursor-not-allowed', 'opacity-75');
+                label.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600'); 
+                label.classList.add('border-slate-300', 'text-slate-700', 'hover:bg-indigo-50');
+            });
+        }
+    </script>
+</body>
+</html>
