@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>State & Local Tax Quiz</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: 2rem auto; }
+    .hidden { display: none; }
+    .question { margin-top: 1.5rem; }
+    button { padding: 0.5rem 1rem; margin-top: 1rem; }
+    .explanation { color: #c00; margin-top: 0.5rem; }
+    #finalImg { max-width: 300px; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>SALT Intern Quiz</h1>
+
+  <!-- Intro Screen -->
+  <div id="intro">
+    <label>Name: <input type="text" id="playerName" /></label><br/>
+    <label>Division:
+      <select id="division">
+        <option value="BTS">BTS</option>
+        <option value="SALT">SALT</option>
+        <option value="Other">Other</option>
+      </select>
+    </label><br/>
+    <button id="startBtn">Start Quiz</button>
+  </div>
+
+  <!-- Quiz Screen -->
+  <div id="quiz" class="hidden">
+    <div id="questionContainer"></div>
+    <button id="submitBtn">Submit Answer</button>
+  </div>
+
+  <!-- Result Screen -->
+  <div id="result" class="hidden">
+    <h2>Quiz Complete!</h2>
+    <p id="scoreDisplay"></p>
+    <img id="finalImg"
+         src="https://i.imgur.com/3p9YjzP.jpg"
+         alt="Grumpy French Bulldog" />
+    <br/>
+    <button id="restartBtn">Play Again</button>
+  </div>
+
+  <script>
+    // Questions array
+    const questions = [
+      {
+        type: 'mcq',
+        prompt: `
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/USA_orthographic.svg/600px-USA_orthographic.svg.png"
+               alt="US map"
+               style="max-width:200px; display:block; margin:0.5rem 0;" />
+          How many states does the United States have?`,
+        options: ['48','49','50','51'],
+        answer: '50',
+        explanation: 'There are 50 states in the U.S.'
+      },
+      {
+        type: 'calc',
+        prompt: `If you earn $100,000 and your state tax rate is 5%, how much tax do you owe?`,
+        answer: '5000',
+        explanation: '5% of 100,000 is 5,000 (0.05 × 100,000).'
+      },
+      {
+        type: 'multi',
+        prompt: `What does SALT stand for? (Select all that apply)`,
+        options: ['State and Local Tax', 'Salt (element)', 'Saving and Loan Trust', 'Senior and Life Treasurer'],
+        answer: ['State and Local Tax','Salt (element)'],
+        explanation: 'SALT in our world is “State and Local Tax” (the acronym) and also literally salt (NaCl).'
+      },
+      {
+        type: 'mcq',
+        prompt: `In U.S. federal tax forms, what is “1120”?`,
+        options: ['A date','A form','A random number','An allowance code'],
+        answer: 'A form',
+        explanation: 'Form 1120 is the U.S. Corporation Income Tax Return form.'
+      },
+      {
+        type: 'mcq',
+        prompt: `Which of these is a local tax?`,
+        options: ['Income tax','Property tax','Tariffs','Estate tax'],
+        answer: 'Property tax',
+        explanation: 'Property tax is levied by local (county/municipal) governments.'
+      }
+    ];
+
+    // State
+    let idx = 0, score = 0;
+
+    // DOM refs
+    const intro    = document.getElementById('intro');
+    const quizDiv  = document.getElementById('quiz');
+    const result   = document.getElementById('result');
+    const qCont    = document.getElementById('questionContainer');
+    const startBtn = document.getElementById('startBtn');
+    const subBtn   = document.getElementById('submitBtn');
+    const restart  = document.getElementById('restartBtn');
+    const scoreD   = document.getElementById('scoreDisplay');
+
+    // Start quiz
+    startBtn.onclick = () => {
+      const name = document.getElementById('playerName').value.trim();
+      if (!name) return alert('Enter your name!');
+      intro.classList.add('hidden');
+      quizDiv.classList.remove('hidden');
+      showQuestion();
+    };
+
+    // Show current question
+    function showQuestion() {
+      qCont.innerHTML = '';
+      const q = questions[idx];
+      const div = document.createElement('div');
+      div.className = 'question';
+      div.innerHTML = `<p><strong>Q${idx+1}.</strong> ${q.prompt}</p>`;
+
+      if (q.type === 'mcq') {
+        q.options.forEach(o => {
+          const id = `opt_${Math.random()}`;
+          div.innerHTML += `
+            <label><input name="opt" type="radio" value="${o}" id="${id}"/>
+            ${o}</label><br/>`;
+        });
+      }
+      else if (q.type === 'multi') {
+        q.options.forEach(o => {
+          const id = `opt_${Math.random()}`;
+          div.innerHTML += `
+            <label><input name="opt" type="checkbox" value="${o}" id="${id}"/>
+            ${o}</label><br/>`;
+        });
+      }
+      else {  // 'calc'
+        div.innerHTML += `<input type="number" id="calcAnswer" style="margin-top:0.5rem;" />`;
+      }
+
+      qCont.appendChild(div);
+    }
+
+    // Submit answer
+    subBtn.onclick = () => {
+      const q = questions[idx];
+      let userAns;
+
+      if (q.type === 'mcq') {
+        const sel = document.querySelector('input[name="opt"]:checked');
+        if (!sel) return alert('Pick an answer!');
+        userAns = sel.value;
+      }
+      else if (q.type === 'multi') {
+        userAns = Array.from(
+          document.querySelectorAll('input[name="opt"]:checked')
+        ).map(i => i.value);
+      }
+      else { // calc
+        userAns = document.getElementById('calcAnswer').value.trim();
+        if (userAns === '') return alert('Enter a number!');
+      }
+
+      // Check correct
+      let correct = false;
+      if (q.type === 'multi') {
+        correct = userAns.length === q.answer.length &&
+                  q.answer.every(a => userAns.includes(a));
+      } else {
+        correct = userAns === q.answer;
+      }
+      if (correct) score++;
+
+      // If wrong, show explanation
+      if (!correct) {
+        const expl = document.createElement('div');
+        expl.className = 'explanation';
+        expl.textContent = `✖ ${q.explanation}`;
+        qCont.appendChild(expl);
+      }
+
+      // Move on after a brief pause
+      subBtn.disabled = true;
+      setTimeout(() => {
+        idx++;
+        if (idx < questions.length) {
+          qCont.innerHTML = '';
+          subBtn.disabled = false;
+          showQuestion();
+        } else {
+          quizDiv.classList.add('hidden');
+          scoreD.textContent =
+            `Hey ${document.getElementById('playerName').value.trim()} from ${document.getElementById('division').value}, you scored ${score}/${questions.length}!`;
+          result.classList.remove('hidden');
+        }
+      }, 1500);
+    };
+
+    // Restart
+    restart.onclick = () => {
+      idx = 0; score = 0;
+      result.classList.add('hidden');
+      intro.classList.remove('hidden');
+      subBtn.disabled = false;
+    };
+  </script>
+</body>
+</html>
